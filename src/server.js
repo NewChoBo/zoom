@@ -19,4 +19,12 @@ const server = http.createServer(app);
 // const wss = new WebSocketServer.Server({ server });
 const wss = new WebSocket.Server({ server });
 
+//server.js의 socket은 연결된 브라우저를 뜻한다.
+function handleConnection(socket){
+    console.log(socket);
+}
+
+//web socket도 event가 있다.
+wss.on("connection", handleConnection);
+
 server.listen(3000, handleListen);
