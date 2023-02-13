@@ -7,10 +7,17 @@
 // const socket = new WebSocket(`ws://${window.location.host}`);  
 
 const messageList = document.querySelector("ul");
-const messageForm = document.querySelector("form");
+// const messageForm = document.querySelector("form");
+const messageForm = document.querySelector("#message");     //id로 접근
+const nickForm = document.querySelector("#nick");
 
 //서버와 연결
 const socket = new WebSocket(`ws://${window.location.host}`);  
+
+function makeMessage(type, payload){
+    const msg = {type, payload}
+    return JSON.stringify(msg);
+}
 
 //서버와 연결되는 이벤트
 socket.addEventListener("open", () => {
@@ -19,7 +26,11 @@ socket.addEventListener("open", () => {
 
 //서버에게 메세지를 받는 이벤트
 socket.addEventListener("message", (message) => {
-    console.log("New message: ", message.data);
+    // console.log("New message: ", message.data);
+    const li = document.createElement("li");
+    li.innerText = message.data;
+
+    messageList.append(li);
 });
 
 //서버와 연결이 끊길때 이벤트
@@ -33,8 +44,22 @@ function handleSubmit(event){
     const input = messageForm.querySelector("input");
 
     // console.log(input.value);
-    socket.send(input.value);
+    // socket.send(input.value);
+    socket.send(makeMessage("new_message", input.value));
     input.value = "";
 }
 
+function handleNickSubmit(event){
+    event.preventDefault();
+    const input = nickForm.querySelector("input");
+    // socket.send(input.value);
+    // socket.send(JSON.stringify({
+    //     type:"nickname",
+    //     payload:input.value,
+    // }));
+    socket.send(makeMessage("nickname", input.value));
+    
+}
+
 messageForm.addEventListener("submit", handleSubmit);
+nickForm.addEventListener("submit", handleNickSubmit);
