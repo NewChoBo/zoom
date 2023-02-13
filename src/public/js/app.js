@@ -3,6 +3,11 @@
 
 //window.location, window.location.host 명령어를 통해 사용자의 현재 주소를 알 수 있다.
 //app.js의 socket은 서버로의 연결을 의미한다.
+//서버와 연결
+// const socket = new WebSocket(`ws://${window.location.host}`);  
+
+const messageList = document.querySelector("ul");
+const messageForm = document.querySelector("form");
 
 //서버와 연결
 const socket = new WebSocket(`ws://${window.location.host}`);  
@@ -22,6 +27,14 @@ socket.addEventListener("close", () => {
     console.log("Disconnected from Server 😡");
 });
 
-setTimeout(() => {
-    socket.send("hello from the browser!");
-}, 10000);
+
+function handleSubmit(event){
+    event.preventDefault();     //기본 동작을 안하게 하나봄. 체크박스 체크하면 bool값이 reverse되는것을 막는다거나
+    const input = messageForm.querySelector("input");
+
+    // console.log(input.value);
+    socket.send(input.value);
+    input.value = "";
+}
+
+messageForm.addEventListener("submit", handleSubmit);
