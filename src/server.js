@@ -31,20 +31,34 @@ const sockets = [];
 //web socket도 event가 있다.
 wss.on("connection", (socket) => {
     sockets.push(socket);
+    socket["nickname"] = "Anon";
 
     //클라이언트랑 연결이 끊기면 동작
     // socket.on("close", () => {console.log("Disconnected from the Browser 😡");});
     socket.on("close", onSocketClose);
 
     //클라이언트에게서 메세지 받음
-    socket.on("message", (message) => {
-        sockets.forEach(aSocket => aSocket.send(message.toString('utf-8')));
-        // socket.send(message.toString('utf-8'));
+    socket.on("message", (msg) => {
+        const message = JSON.parse(msg);
+
+        // if(message.type === "new_message"){
+        //     sockets.forEach(aSocket => aSocket.send(message.payload));
+        // } else if(message.type === "nickname"){
+        //     console.log(message.payload);
+        // }
+        switch (message.type){
+            case "new_message":
+                sockets.forEach(aSocket => aSocket.send(`${socket.nickname} : ${message.payload}`));
+                break;
+            case "nickname":
+                // console.log(message.payload);
+                socket["nickname"] = message.payload;
+                break;
+        }
     });
 
     //클라이언트에게 메세지 전송
-    socket.send("hello!!!");
-
+    // socket.send("hello!!!");
 
     console.log("Connected to Browser ✔");
 });
