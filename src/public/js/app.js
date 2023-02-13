@@ -26,7 +26,6 @@ socket.addEventListener("open", () => {
 
 //서버에게 메세지를 받는 이벤트
 socket.addEventListener("message", (message) => {
-    // console.log("New message: ", message.data);
     const li = document.createElement("li");
     li.innerText = message.data;
 
@@ -46,6 +45,13 @@ function handleSubmit(event){
     // console.log(input.value);
     // socket.send(input.value);
     socket.send(makeMessage("new_message", input.value));
+
+    //내가 보낸 메세지 화면에 그리기
+    const li = document.createElement("li");
+    li.innerText = `YOU : ${input.value}`;
+    messageList.append(li);
+
+
     input.value = "";
 }
 

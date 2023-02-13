@@ -41,14 +41,10 @@ wss.on("connection", (socket) => {
     socket.on("message", (msg) => {
         const message = JSON.parse(msg);
 
-        // if(message.type === "new_message"){
-        //     sockets.forEach(aSocket => aSocket.send(message.payload));
-        // } else if(message.type === "nickname"){
-        //     console.log(message.payload);
-        // }
         switch (message.type){
             case "new_message":
-                sockets.forEach(aSocket => aSocket.send(`${socket.nickname} : ${message.payload}`));
+                //그냥 바꿔봤는데 되네...?
+                sockets.forEach(aSocket => {aSocket === socket ? {} : aSocket.send(`${socket.nickname} : ${message.payload}`)});
                 break;
             case "nickname":
                 // console.log(message.payload);
