@@ -1,7 +1,8 @@
 import http from "http";
 import SocketIO from "socket.io";
-import express, { application } from "express";
-import { Socket } from "dgram";
+import express from "express";
+// import express, { application } from "express";
+// import { Socket } from "dgram";
 // import WebSocketServer from "ws";
 // import WebSocket from "ws";
 
@@ -11,10 +12,7 @@ app.set("view engine", "pug");
 app.set("views", __dirname + "/views");
 app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (req, res) => res.render("home"));
-app.get("/*", (req, res) => res.render("/"));
-
-const handleListen = () => console.log('Listening on http://localhost:3000');
-// app.listen(3000, handleListen);
+app.get("/*", (req, res) => res.render("home"));
 
 
 //웹소켓
@@ -30,7 +28,12 @@ const wsServer = SocketIO(httpServer);
 
 //connection 받을 준비 끝
 wsServer.on("connection", (socket) => {
-    console.log(socket);
+    socket.on("enter_room", (msg, done) => {
+        console.log(msg);
+        setTimeout(() => {
+            done();
+        }, 10000);        
+    });
 });
 
 
@@ -72,6 +75,6 @@ wss.on("connection", (socket) => {
 });
 */
 
-
+const handleListen = () => console.log(`Listening on http://localhost:3000`);
 httpServer.listen(3000, handleListen);      //포트번호, 함수 실행
 

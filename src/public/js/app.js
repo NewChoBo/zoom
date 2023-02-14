@@ -75,3 +75,23 @@ nickForm.addEventListener("submit", handleNickSubmit);
 
 // socket.io
 const socket = io();
+
+const welcome = document.getElementById("welcome");
+const form = welcome.querySelector("form");
+
+function handleRoomSubmit (event) {
+    event.preventDefault();
+    const input = form.querySelector("input");
+
+    //이젠 socket.send가 아님
+    socket.emit("enter_room", { payload: input.value }, () => {
+        console.log("server is done!");
+    });        
+    //항상 메세지를 보낼 필요없음. emit으로 오브젝트 보낼 수 있음.   
+    //특정한 이벤트를 emit 할 수 있다. 어떤 이름이든 상관없음.
+    //object를 보낼 수 있다. string 아니여도 됨.
+
+    input.value = "";
+}
+
+form.addEventListener("submit", handleRoomSubmit);
