@@ -28,11 +28,11 @@ const wsServer = SocketIO(httpServer);
 
 //connection 받을 준비 끝
 wsServer.on("connection", (socket) => {
-    socket.on("enter_room", (msg, done) => {
-        console.log(msg);
+    socket.on("enter_room", (roomName, done) => {
+        console.log(roomName);
         setTimeout(() => {
-            done();
-        }, 10000);        
+            done("hello from the backend!");
+        }, 5000);      
     });
 });
 
