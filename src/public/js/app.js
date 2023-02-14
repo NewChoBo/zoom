@@ -1,3 +1,5 @@
+/* web socket으로 작업한 파일
+
 // const aWebSocket = new WebSocket("http://localhost:3000/");      //웹소켓이기때문에 http 아님
 // const aWebSocket = new WebSocket("ws://localhost:3000/");
 
@@ -69,3 +71,7 @@ function handleNickSubmit(event){
 
 messageForm.addEventListener("submit", handleSubmit);
 nickForm.addEventListener("submit", handleNickSubmit);
+*/
+
+// socket.io
+const socket = io();
