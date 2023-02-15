@@ -104,11 +104,11 @@ function handleMessageSubmit(event){
 
 function handleNicknameSubmit(event){
     event.preventDefault();
-    const input = room.querySelector("#name input");    //room에서 id가 name인 오브젝트의 input
+    const input = document.querySelector("#name input");    //room에서 id가 name인 오브젝트의 input
     socket.emit("nickname", input.value);
 }
 
-function showRoom(){
+function showRoom(){    
     welcome.hidden = true;
     room.hidden = false;
 
@@ -116,10 +116,7 @@ function showRoom(){
     h3.innerText = `Room ${roomName}`;
     
     const msgForm = room.querySelector("#msg");
-    msgForm.addEventListener("submit", handleMessageSubmit);
-
-    const nameForm = room.querySelector("#name");
-    nameForm.addEventListener("submit", handleNicknameSubmit);
+    msgForm.addEventListener("submit", handleMessageSubmit);    
 }
 
 function handleRoomSubmit (event) {
@@ -143,6 +140,9 @@ function handleRoomSubmit (event) {
 }
 
 form.addEventListener("submit", handleRoomSubmit);
+
+const nameForm = document.querySelector("#name");
+nameForm.addEventListener("submit", handleNicknameSubmit);
 
 
 
