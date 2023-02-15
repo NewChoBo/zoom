@@ -1,5 +1,6 @@
 import http from "http";
-import SocketIO from "socket.io";
+import {Server} from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 import express from "express";
 // import express, { application } from "express";
 // import { Socket } from "dgram";
@@ -24,7 +25,19 @@ app.get("/*", (req, res) => res.render("home"));
 //socketIO
 // const server = http.createServer(app);
 const httpServer = http.createServer(app);      //이름은 자유
-const wsServer = SocketIO(httpServer);        
+const wsServer = new Server(httpServer, {
+    //데모가 작동하는데 필요한 환경설정
+    cors: {
+        origin: ["https://admin.socket.io"],
+        credentials: true,
+    }
+});        
+// const wsServer = SocketIO(httpServer);        
+instrument(wsServer, {
+    auth: false,
+    mode: "development",
+  });
+
 
 //publicRooms만 골라낸다. (socket id 걸러내기)
 function publicRooms(){
