@@ -45,6 +45,10 @@ function publicRooms(){
     return publicRooms;
 }
 
+function countRoom(roomName){
+    return wsServer.sockets.adapter.rooms.get(roomName)?.size;
+}
+
 //connection 받을 준비 끝
 wsServer.on("connection", (socket) => {
     console.log(wsServer.sockets.adapter);
@@ -58,13 +62,13 @@ wsServer.on("connection", (socket) => {
     socket.on("enter_room", (roomName, done) => {
         socket.join(roomName);
         done();
-        socket.to(roomName).emit("welcome", socket.nickname);
+        socket.to(roomName).emit("welcome", socket.nickname, countRoom(roomName));
         wsServer.sockets.emit("room_change", publicRooms());    //서버의 모든 소켓에 public 방들에 대한 정보를 payload로 보낸다.
     });
 
     socket.on("disconnecting", () => {
         socket.rooms.forEach(
-            room => socket.to(room).emit("bye", socket.nickname)
+            room => socket.to(room).emit("bye", socket.nickname, countRoom(room) -1)
         );
         wsServer.sockets.emit("room_change", publicRooms()); 
         //브라우저를 끄지 않고 새로고침만 하면, 바로 소켓이 사라지지 않는걸까
