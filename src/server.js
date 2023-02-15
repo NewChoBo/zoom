@@ -28,11 +28,18 @@ const wsServer = SocketIO(httpServer);
 
 //connection 받을 준비 끝
 wsServer.on("connection", (socket) => {
+    socket.onAny((event) => {
+        console.log(`Socket Event:${event}`);
+        // console.log(`You are in room : ${JSON.stringify(socket.rooms)}`);    //이건 아닌가봄.
+    })
+
     socket.on("enter_room", (roomName, done) => {
-        console.log(roomName);
-        setTimeout(() => {
-            done("hello from the backend!");
-        }, 5000);      
+        // console.log(socket.id);
+        // console.log(socket.rooms);
+        socket.join(roomName);
+        // console.log(socket.rooms);
+        
+        done();
     });
 });
 
