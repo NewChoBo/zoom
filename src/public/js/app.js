@@ -157,3 +157,16 @@ socket.on("bye", (left) => {
 
 // socket.on("new_message", (msg) => addMessage(msg + '-익명함수'));
 socket.on("new_message", addMessage);
+
+socket.on("room_change", console.log);
+// socket.on("room_change", (msg) => console.log(msg));     //위와 동일한 코드
+
+socket.on("room_change", (rooms) => {
+    const roomList = welcome.querySelector("ul");
+    roomList.innerHTML = "";
+    rooms.forEach(room => {
+        const li = document.createElement("li");
+        li.innerHTML = room;
+        roomList.append(li);
+    });
+});

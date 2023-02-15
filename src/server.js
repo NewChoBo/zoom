@@ -59,12 +59,20 @@ wsServer.on("connection", (socket) => {
         socket.join(roomName);
         done();
         socket.to(roomName).emit("welcome", socket.nickname);
+        wsServer.sockets.emit("room_change", publicRooms());    //서버의 모든 소켓에 public 방들에 대한 정보를 payload로 보낸다.
     });
 
     socket.on("disconnecting", () => {
         socket.rooms.forEach(
             room => socket.to(room).emit("bye", socket.nickname)
         );
+        wsServer.sockets.emit("room_change", publicRooms()); 
+        //브라우저를 끄지 않고 새로고침만 하면, 바로 소켓이 사라지지 않는걸까
+        //가 아니라 한발 늦게 반응함. disconnected된게 아니라, disconnecting. 완전 사라지지 않았기 때문인듯.
+    });
+
+    socket.on("disconnect", () => {
+        wsServer.sockets.emit("room_change", publicRooms()); 
     });
 
     socket.on("new_message", (msg, roomName, done) => {
