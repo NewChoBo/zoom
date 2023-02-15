@@ -26,8 +26,28 @@ app.get("/*", (req, res) => res.render("home"));
 const httpServer = http.createServer(app);      //이름은 자유
 const wsServer = SocketIO(httpServer);        
 
+//publicRooms만 골라낸다. (socket id 걸러내기)
+function publicRooms(){
+    const {
+        sockets: {
+            adapter: {sids, rooms },
+        },
+    } = wsServer;      //이 문법은 많이 낯설다.
+    // const sids = wsServer.sockets.adapter.sids;
+    // const rooms = wsServer.sockets.adapter.rooms;
+
+    const publicRooms = [];
+    rooms.forEach((_, key) => {
+        if(sids.get(key) === undefined){
+            publicRooms.push(key);
+        }
+    })
+    return publicRooms;
+}
+
 //connection 받을 준비 끝
 wsServer.on("connection", (socket) => {
+    console.log(wsServer.sockets.adapter);
     socket["nickname"] = "Anon";
 
     socket.onAny((event) => {
