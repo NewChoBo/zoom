@@ -117,19 +117,20 @@ camerasSelect.addEventListener("input", handleCameraChange);
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
-async function startMedia(){
+async function initCall(){
     welcome.hidden = true;
     call.hidden = false;
     await getMedia();
     mackConnection();
 }
 
-function handleWelcomeSubmit(event){
+async function handleWelcomeSubmit(event){
     event.preventDefault();
     const input = welcomeForm.querySelector("input");
     
     // console.log(input.value);
-    socket.emit("join_room", input.value, startMedia);
+    await initCall();
+    socket.emit("join_room", input.value);
     roomName = input.value;
     input.value = "";
 }
@@ -149,10 +150,20 @@ socket.on("welcome", async () => {
     console.log("sent the offer");
 });
 
-socket.on("offer", (offer) => {     //offer을 받은 쪽(신규 참가자)에게서 동작
-    console.log(offer);
+socket.on("offer", async (offer) => {     //offer을 받은 쪽(신규 참가자)에게서 동작
+    // console.log(offer);
+    myPeerConnection.setRemoteDescription(offer);
+    const answer = await myPeerConnection.createAnswer();   //여기서 생긴 answer로 setLocalDescription을 할 것.
+    // console.log(answer);
+
+    myPeerConnection.setLocalDescription(answer); 
+    socket.emit("answer", answer, roomName);
 });
 
+socket.on("answer", answer => {
+    //로컬과 리모트?
+    myPeerConnection.setRemoteDescription(answer);
+});
 
 
 // RTC Code
