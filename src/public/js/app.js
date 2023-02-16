@@ -13,6 +13,7 @@ let myStream;
 let muted = false;
 let cameraOff = false;
 let roomName;
+let myPeerConnection;
 
 async function getCameras(){
     try {
@@ -116,10 +117,11 @@ camerasSelect.addEventListener("input", handleCameraChange);
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
-function startMedia(){
+async function startMedia(){
     welcome.hidden = true;
     call.hidden = false;
-    getMedia();
+    await getMedia();
+    mackConnection();
 }
 
 function handleWelcomeSubmit(event){
@@ -137,6 +139,29 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 
 // Socket code
-socket.on("welcome", () => {
-    console.log("someone joined");
-})
+socket.on("welcome", async () => {
+    // console.log("someone joined");
+    const offer = await myPeerConnection.createOffer();
+    myPeerConnection.setLocalDescription(offer);    //이 코드는 기존에 입장해있던 사람에게서만 동작한다.
+    // console.log(offer);
+
+    socket.emit("offer", offer, roomName);
+    console.log("sent the offer");
+});
+
+socket.on("offer", (offer) => {     //offer을 받은 쪽(신규 참가자)에게서 동작
+    console.log(offer);
+});
+
+
+
+// RTC Code
+function mackConnection(){
+    myPeerConnection = new RTCPeerConnection();     //브라우저에 peer-to-peer 만듦
+    //누군가가 getMedia 함수를 불렀을때 stream을 공유
+    // console.log(myStream.getTracks());      //2개의 MediaStreamTrack을 가진 배열이 출력됨. audio, video
+    myStream                                        //카메라와 마이크의 데이터 stream 받아 연결 안에 넣음
+        .getTracks()
+        .forEach(track => myPeerConnection.addTrack(track, myStream));  //아직 브라우저들을 연결하진 않음. 따로 구성했을 뿐
+
+}
