@@ -14,6 +14,7 @@ let muted = false;
 let cameraOff = false;
 let roomName;
 let myPeerConnection;
+let myDataChannel;
 
 async function getCameras(){
     try {
@@ -156,6 +157,13 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // Socket code
 socket.on("welcome", async () => {
+    myDataChannel = myPeerConnection.createDataChannel("chat");
+    // myDataChannel.addEventListener("message", console.log);
+    myDataChannel.addEventListener("message", (event) => {
+        console.log(event.data);
+    });
+    console.log("made data channel");
+
     // console.log("someone joined");
     const offer = await myPeerConnection.createOffer();
     myPeerConnection.setLocalDescription(offer);    //이 코드는 기존에 입장해있던 사람에게서만 동작한다.
@@ -166,6 +174,15 @@ socket.on("welcome", async () => {
 });
 
 socket.on("offer", async (offer) => {     //offer을 받은 쪽(신규 참가자)에게서 동작
+    // myPeerConnection.addEventListener("datachannel", console.log);   //channel에 data channel 있음
+    myPeerConnection.addEventListener("datachannel", (event) => {
+        myDataChannel = event.channel;
+        // myDataChannel.addEventListener("message", console.log);
+        myDataChannel.addEventListener("message", (event) => {
+            console.log(event.data);
+        });
+    });
+
     console.log("received the offer");
     myPeerConnection.setRemoteDescription(offer);
     const answer = await myPeerConnection.createAnswer();   //여기서 생긴 answer로 setLocalDescription을 할 것.
