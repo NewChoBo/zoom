@@ -191,7 +191,19 @@ socket.on("ice", (ice) => {   //ice event를 받아옴
 
 // RTC Code
 function mackConnection(){
-    myPeerConnection = new RTCPeerConnection();     //브라우저에 peer-to-peer 만듦
+    myPeerConnection = new RTCPeerConnection({
+        iceServers: [
+            {
+                urls: [
+                    "stun:stun.l.google.com:19302",
+                    "stun:stun1.l.google.com:19302",
+                    "stun:stun2.l.google.com:19302",
+                    "stun:stun3.l.google.com:19302",
+                    "stun:stun4.l.google.com:19302",
+                ],
+            }
+        ],//stun server 작업. 하지만, 진짜 제대로 하고싶으면 우리가 우리소유 stun 서버를 만들라고 함.
+    });     //브라우저에 peer-to-peer 만듦
     //누군가가 getMedia 함수를 불렀을때 stream을 공유
     // console.log(myStream.getTracks());      //2개의 MediaStreamTrack을 가진 배열이 출력됨. audio, video
 
