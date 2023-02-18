@@ -105,6 +105,21 @@ function handleCameraClick(){
 async function handleCameraChange(){
     // console.log(camerasSelect.value);
     await getMedia(camerasSelect.value);
+
+    //카메라 설정을 바꿀 때 track을 바꿔야 함
+    if(myPeerConnection){
+        const vidoeTrack = myStream.getVideoTracks()[0];
+
+        // console.log(myPeerConnection.getSenders()); //sender을 찾을 수 있다. 우린 그중에서도 video를 찾는 것.
+        
+        //우리는 카메라를 바꿀 때 stream을 통째로 바꿔버리는데, user에게 보내는 track은 바꾸지 않고있었다.
+        //kind:"video"를 가진 Sender을 찾아서 getSender 할 것.
+        const videoSender = myPeerConnection
+            .getSenders()
+            .find(sender => sender.track.kind=="video");
+        // console.log(videoSender);
+        videoSender.replaceTrack(vidoeTrack);
+    }
 }
 
 muteBtn.addEventListener("click", handleMuteClick);
@@ -146,23 +161,31 @@ socket.on("welcome", async () => {
     myPeerConnection.setLocalDescription(offer);    //이 코드는 기존에 입장해있던 사람에게서만 동작한다.
     // console.log(offer);
 
-    socket.emit("offer", offer, roomName);
     console.log("sent the offer");
+    socket.emit("offer", offer, roomName);    
 });
 
 socket.on("offer", async (offer) => {     //offer을 받은 쪽(신규 참가자)에게서 동작
-    // console.log(offer);
+    console.log("received the offer");
     myPeerConnection.setRemoteDescription(offer);
     const answer = await myPeerConnection.createAnswer();   //여기서 생긴 answer로 setLocalDescription을 할 것.
     // console.log(answer);
 
     myPeerConnection.setLocalDescription(answer); 
     socket.emit("answer", answer, roomName);
+    console.log("sent the answer");
 });
 
 socket.on("answer", answer => {
+    console.log("received the answer");
+
     //로컬과 리모트?
     myPeerConnection.setRemoteDescription(answer);
+});
+
+socket.on("ice", (ice) => {   //ice event를 받아옴
+    console.log("received candidate");
+    myPeerConnection.addIceCandidate(ice);
 });
 
 
@@ -171,8 +194,29 @@ function mackConnection(){
     myPeerConnection = new RTCPeerConnection();     //브라우저에 peer-to-peer 만듦
     //누군가가 getMedia 함수를 불렀을때 stream을 공유
     // console.log(myStream.getTracks());      //2개의 MediaStreamTrack을 가진 배열이 출력됨. audio, video
+
+    myPeerConnection.addEventListener("icecandidate", handleIce);
+
+    myPeerConnection.addEventListener("addstream", handleAddStream);
+
     myStream                                        //카메라와 마이크의 데이터 stream 받아 연결 안에 넣음
         .getTracks()
         .forEach(track => myPeerConnection.addTrack(track, myStream));  //아직 브라우저들을 연결하진 않음. 따로 구성했을 뿐
+}
 
+
+function handleIce(data){   //ice event를 emit
+    console.log("sent candidate");
+    socket.emit("ice", data.candidate, roomName);   //브라우저끼리 candidate들을 서로 주고 받는다.
+    // console.log("got ice candidate");
+    // console.log(data);
+}
+
+function handleAddStream(data){
+    const peerFace = document.getElementById("peerFace");
+    // console.log("got an event from my peer");
+    // console.log("Peer's Stream", data.stream);
+    // console.log("My stream : ", myStream);
+
+    peerFace.srcObject = data.stream;
 }
